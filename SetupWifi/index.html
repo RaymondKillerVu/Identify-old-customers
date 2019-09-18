@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<title>WebSocket Test</title>
+
+<script language="javascript" type="text/javascript">
+
+  
+	function init()
+	{
+		document.myform.IPDevice.value = "192.168.100.100";
+		document.myform.SSID.value = "CRETA-KD";
+		document.myform.PASS.value = "yoursolution";
+		document.myform.key_mgmt.value = "WPA-PSK";
+		document.myform.IPWifiStatic.value = "192.168.100.100";
+		document.myform.IPWifiRouters.value = "192.168.100.1";
+		document.myform.IPLANStatic.value = "192.168.100.99";
+		document.myform.IPLANRouters.value = "192.168.100.1";
+		document.myform.DNS.value = "8.8.8.8";
+		document.myform.DSS.value = "8.8.4.4";
+		document.myform.disconnectButton.disabled = true;
+	}
+
+	function doConnect()
+	{
+		websocket = new WebSocket("ws://" + document.myform.IPDevice.value + ":8181/");
+		websocket.onopen = function(evt) { onOpen(evt) };
+		websocket.onclose = function(evt) { onClose(evt) };
+		websocket.onmessage = function(evt) { onMessage(evt) };
+		websocket.onerror = function(evt) { onError(evt) };
+
+	}
+
+	function onOpen(evt)
+	{
+		//websocket.send("{\"Func\":\"Connect\",\"FtpUlr\":\"" + document.myform.FtpUrl.value + "\",\"FtpUser\":\"" +  document.myform.FtpUser.value + "\",\"FtpPass\":\"" + document.myform.FtpPass.value + "\",\"FtpPath\":\"" + document.myform.FtpPath.value +"\"}");
+		writeToScreen("connected!\n");
+		document.myform.connectButton.disabled = true;
+		document.myform.disconnectButton.disabled = false;
+		//document.myform.TriggerButton.disabled = false;
+	}
+
+	function onClose(evt)
+	{
+		writeToScreen("disconnected!\n");
+		document.myform.connectButton.disabled = false;
+		document.myform.disconnectButton.disabled = true;
+		//document.myform.TriggerButton.disabled = true;
+		//document.myform.ShowImageButton.disabled = true;
+	}
+
+	function onMessage(evt)
+	{
+		writeToScreen("response: " + evt.data + '\n');
+	}
+
+	function onError(evt)
+	{
+		writeToScreen('error: ' + evt.data + '\n');
+		//websocket.send("{\"Func\":\"Error\"}");
+		websocket.close();
+
+		document.myform.connectButton.disabled = false;
+		document.myform.disconnectButton.disabled = true;
+
+	}
+
+
+	function writeToScreen(message)
+	{
+		document.myform.outputtext.value += message;
+		document.myform.outputtext.scrollTop = document.myform.outputtext.scrollHeight;
+	}
+
+	window.addEventListener("load", init, false);
+
+	function doDisconnect() {
+		//websocket.send("{\"Func\":\"Disconnect\"}");
+		websocket.close();
+	}
+  
+	function WifiSetup() {
+		writeToScreen("setup wifi");
+		websocket.send("{\"Func\":\"WifiSetup\",\"SSID\":\"" + document.myform.SSID.value + "\",\"PASS\":\"" +  document.myform.PASS.value + "\",\"key_mgmt\":\"" + document.myform.key_mgmt.value + "\"}");
+	}
+	
+	function FStaticWifi() {
+		writeToScreen("static wifi");
+		websocket.send("{\"Func\":\"StaticWifi\",\"SSID\":\"" + document.myform.SSID.value + "\",\"IPWifiStatic\":\"" + document.myform.IPWifiStatic.value + "\",\"IPWifiRouters\":\"" +  document.myform.IPWifiRouters.value + "\",\"DNS\":\"" + document.myform.DNS.value + "\",\"DSS\":\"" + document.myform.DSS.value +"\"}");
+	}
+	
+	function FStaticLAN() {
+		writeToScreen("static LAN");
+		websocket.send("{\"Func\":\"StaticLAN\",\"IPLANStatic\":\"" + document.myform.IPLANStatic.value + "\",\"IPLANRouters\":\"" +  document.myform.IPLANRouters.value + "\",\"DNS\":\"" + document.myform.DNS.value + "\",\"DSS\":\"" + document.myform.DSS.value +"\"}");
+	}
+
+</script>
+
+<div id="output"></div>
+
+<form name="myform">
+<p>
+Config Network:</div>
+</p>
+<p>
+<textarea name="outputtext" rows="5" cols="60"></textarea>
+</p>
+<p>
+IP Device: 
+<textarea name="IPDevice" rows="1" cols="60" ></textarea>
+</p>
+------------------------------------------------------------------------------------------------------------------------
+<p>
+Wifi Setting:
+</p>
+<p>
+	<p>
+	SSID: 
+	<textarea name="SSID" rows="1" cols="60" ></textarea>
+	</p>
+	<p>
+	PASS: 
+	<textarea name="PASS" rows="1" cols="60" ></textarea>
+	</p>
+	<p>
+	key_mgmt: 
+	<textarea name="key_mgmt" rows="1" cols="60" ></textarea>
+	</p>
+	<p>
+	IP Wifi Static: 
+	<textarea name="IPWifiStatic" rows="1" cols="60" ></textarea>
+	</p>
+	<p>
+	IP Wifi Routers: 
+	<textarea name="IPWifiRouters" rows="1" cols="60" ></textarea>
+	</p>
+	
+</p>
+-------------------------------------------------------------------------------------------------------------------------
+<p>IP LAN Setting:</p>
+<p>
+	<p>
+	IP LAN Static: 
+	<textarea name="IPLANStatic" rows="1" cols="60" ></textarea>
+	</p>
+	<p>
+	IP LAN Routers: 
+	<textarea name="IPLANRouters" rows="1" cols="60" ></textarea>
+	</p>
+</p>
+--------------------------------------------------------------------------------------------------------------------------
+<p>Domain Server:</p>
+<p>
+	<p>
+	DNS:
+	<textarea name="DNS" rows="1" cols="60" ></textarea>
+	</p>
+	<p>
+	DSS:
+    <textarea name="DSS" rows="1" cols="60" ></textarea>
+	</p>
+</p>
+<p>
+--------------------------------------------------------------------------------------------------------------------------
+</p>
+<input type="button" name=connectButton value="Connect" onClick="doConnect();">
+<input type="button" name=disconnectButton value="Disconnect" onClick="doDisconnect();">
+<input type="button" name=SetupWifi value="Setup Wifi" onClick="WifiSetup();">
+<input type="button" name=StaticWifi value="Setup IP Wifi" onClick="FStaticWifi();">
+<input type="button" name=StaticLAN value="Setup IP LAN" onClick="FStaticLAN();">
+</form>
+</html> 
+

@@ -1,0 +1,2 @@
+libEGL warning: DRI2: failed to authenticate
+QLayout: Attempting to add QLayout "" to MainWindow "Form", which already has a layout
