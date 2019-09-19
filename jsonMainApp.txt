@@ -1,8 +1,3 @@
-# Identify-old-customers
-API with face verify and recognize
-
-cách sử dụng API:
-
 RECOGINZE IMAGE:
 PUBLISH: TOPIC "APIGetPost"
 DATA IN STRING:
